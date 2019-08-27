@@ -54,5 +54,5 @@ if __name__ == "__main__":
             fetch_and_save_rss(key, value["link"], value["key_list"], database)
 
         db_client.close()
-        break
+        # break
         time.sleep(5 * 60)
