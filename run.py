@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
+    config = dict(sorted(config.items()))
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--mongodb_host", default=None, type=str,
