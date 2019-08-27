@@ -17,19 +17,22 @@ def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, databa
 
 
 if __name__ == "__main__":
-    print(time.strftime("%y-%m-%d %H:%M:%S"), "run")
-    with open("config.yml", 'r') as ymlfile:
-        config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
+    while True:
+        print(time.strftime("%y-%m-%d %H:%M:%S"), "run")
+        with open("config.yml", 'r') as ymlfile:
+            config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
-    for rss_name in config["rss"].keys():
-        config["rss"][rss_name]["link"].replace("https://rsshub.app", config["rsshub"]["host"])
-        # print(config["rss"][rss_name]["link"])
-    print(config)
+        for rss_name in config["rss"].keys():
+            config["rss"][rss_name]["link"].replace("https://rsshub.app", config["rsshub"]["host"])
+            # print(config["rss"][rss_name]["link"])
+        print(config)
 
-    db_client = MongoClient(config['mongodb']['link'])
-    database = db_client["rss_spider"]
+        db_client = MongoClient(config['mongodb']['link'])
+        database = db_client["rss_spider"]
 
-    for key, value in config["rss"].items():
-        fetch_and_save_rss(key, value["link"], value["key_list"], database)
+        for key, value in config["rss"].items():
+            fetch_and_save_rss(key, value["link"], value["key_list"], database)
 
-    db_client.close()
+        db_client.close()
+
+        time.sleep(5 * 60)
