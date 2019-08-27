@@ -1,0 +1,11 @@
+mongodb:
+    link: mongodb://localhost:27023
+rss:
+    zhihu_hotlist:
+        link: https://rsshub.app/zhihu/hotlist
+        keys_set:
+            - title
+            - summary
+            - published
+            - link
+            - author
