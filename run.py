@@ -12,6 +12,7 @@ def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, databa
     for raw_item in rss.entries:
         save_item = dict((key, raw_item[key]) for key in rss_keys_list)
         save_item["_id"] = raw_item["id"]
+        save_item["last_update_time"] = time.strftime("%y-%m-%d %H:%M:%S")
         update_result = database[rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
         if update_result.matched_count == 0:
             print(time.strftime("%y-%m-%d %H:%M:%S"), "Add new item, source :", rss_name,
