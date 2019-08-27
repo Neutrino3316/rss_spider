@@ -1,5 +1,7 @@
 mongodb:
     link: mongodb://localhost:27023
+rsshub:
+    host: http://localhost:1202/  # replace https://rsshub.app
 rss:
     zhihu_hotlist:
         link: https://rsshub.app/zhihu/hotlist
