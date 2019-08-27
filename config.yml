@@ -8,7 +8,47 @@ rss:
         link: https://rsshub.app/zhihu/hotlist
         key_list:
             - title
-            - summary
-            - published
             - link
+            - published
             - author
+            - summary
+    smzdm_feed:
+        link: http://feed.smzdm.com
+        key_list:
+            - title
+            - link
+            - published
+            - focus_pic
+            - summary
+    smzdm_haitao:
+        link: http://haitao.smzdm.com/feed
+        key_list:
+            - title
+            - link
+            - published
+            - focus_pic
+            - summary
+    smzdm_post:
+        link: http://post.smzdm.com/feed
+        key_list:
+            - title
+            - link
+            - published
+            - author
+            - summary
+    smzdm_faxian:
+        link: http://faxian.smzdm.com/feed
+        key_list:
+            - title
+            - link
+            - published
+            - focus_pic
+            - summary
+    smzdm_news:
+        link: http://news.smzdm.com/feed
+        key_list:
+            - title
+            - link
+            - published
+            - author
+            - summary

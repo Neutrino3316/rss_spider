@@ -13,6 +13,8 @@ def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, databa
         save_item = dict((key, raw_item[key]) for key in rss_keys_list)
         save_item["_id"] = raw_item["id"]
         save_item["last_update_time"] = time.strftime("%y-%m-%d %H:%M:%S")
+        save_item = dict(sorted(save_item.items()))
+
         update_result = database[rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
         if update_result.matched_count == 0:
             print(time.strftime("%y-%m-%d %H:%M:%S"), "Add new item, source :", rss_name,
@@ -23,7 +25,11 @@ if __name__ == "__main__":
 
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
+    for rss_name in config["rss"].keys():
+        config["rss"][rss_name]["link"].replace("https://rsshub.app", config["rsshub"]["host"])
+        # print(config["rss"][rss_name]["link"])
     config = dict(sorted(config.items()))
+    # print(config)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--mongodb_host", default=None, type=str,
@@ -43,17 +49,12 @@ if __name__ == "__main__":
 
         print(time.strftime("%y-%m-%d %H:%M:%S"), "run")
 
-        for rss_name in config["rss"].keys():
-            config["rss"][rss_name]["link"].replace("https://rsshub.app", config["rsshub"]["host"])
-            # print(config["rss"][rss_name]["link"])
-        print(config)
-
         db_client = MongoClient(config['mongodb']['link'])
-        database = db_client["rss_spider"]
+        database = db_client["rss_spider2"]
 
         for key, value in config["rss"].items():
             fetch_and_save_rss(key, value["link"], value["key_list"], database)
 
         db_client.close()
-        # break
+        break
         time.sleep(5 * 60)
