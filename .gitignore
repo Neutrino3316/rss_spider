@@ -1,5 +1,7 @@
-# ignore pycharm settings
+# ignore temp.md, a file for temp command line for myself
+temp.md
 
+# ignore pycharm settings
 .idea/*
 
 # GitHub Python gitignore
