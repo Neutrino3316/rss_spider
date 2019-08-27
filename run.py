@@ -11,7 +11,7 @@ def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, databa
 
     for raw_item in rss.entries:
         save_item = dict((key, raw_item[key]) for key in rss_keys_list)
-        save_item["_id"] = raw_item["id"]
+        save_item["_id"] = raw_item["link"]
         save_item["last_update_time"] = time.strftime("%y-%m-%d %H:%M:%S")
         save_item = dict(sorted(save_item.items()))
 

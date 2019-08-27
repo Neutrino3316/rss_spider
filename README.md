@@ -1,3 +1,8 @@
+# TODO
+
+- [ ] add id_key in config.yml
+- [ ] add item\["content"\]\[0\]\["value"\]
+
 # 配置
 
 ## config.yml
