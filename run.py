@@ -1,4 +1,5 @@
 import feedparser
+import time
 import yaml
 from pymongo import MongoClient
 
@@ -12,11 +13,11 @@ def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, databa
         save_item["_id"] = raw_item["id"]
         update_result = database[rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
         if update_result.matched_count == 0:
-            print("Add new item, source :", rss_name, ", item:", save_item["title"], save_item["link"])
+            print(time.strftime("%y-%m-%d %H:%M:%S"), "Add new item, source :", rss_name, ", item:", save_item["title"], save_item["link"])
 
 
 if __name__ == "__main__":
-
+    print(time.strftime("%y-%m-%d %H:%M:%S"), "run")
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
 
