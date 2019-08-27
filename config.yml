@@ -3,7 +3,7 @@ mongodb:
 rss:
     zhihu_hotlist:
         link: https://rsshub.app/zhihu/hotlist
-        keys_set:
+        key_list:
             - title
             - summary
             - published
