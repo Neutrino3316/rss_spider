@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import feedparser
-import pytz
 import time
 import yaml
 from pymongo import MongoClient
@@ -57,11 +56,11 @@ if __name__ == "__main__":
         print(get_formatted_time(), "run")
 
         db_client = MongoClient(config['mongodb']['link'])
-        database = db_client["rss_spider2"]
+        database = db_client["rss_spider"]
 
         for key, value in config["rss"].items():
             fetch_and_save_rss(key, value["link"], value["key_list"], database)
 
         db_client.close()
-        break
+        # break
         time.sleep(5 * 60)
