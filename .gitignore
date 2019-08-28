@@ -1,3 +1,11 @@
+# ignore temp.md, a file for temp command line for myself
+temp.md
+
+# ignore pycharm settings
+.idea/*
+
+# GitHub Python gitignore
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
