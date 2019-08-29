@@ -54,6 +54,18 @@ docker run -d --name rsshub_diygod --restart=always -p 1200:1200 \
 	diygod/rsshub:latest
 ```
 
+## 在docker中运行mongoDB（可选）
+
+```bash
+docker run -d -p 27017:27017 --name mongo_rss_spider --restart=always \
+	-v mongo_rss_spider_data_configdb:/data/configdb \
+	-v mongo_rss_spider_data_db:/data/db \
+	-v d:/docker_mount/mongo_rss_spider_backup:/mongo_backup \
+	mongo
+```
+
+
+
 # 致谢
 
 特别感谢[DIYgod](https://github.com/DIYgod)写的[RSSHub](https://github.com/DIYgod/RSSHub)项目

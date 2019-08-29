@@ -23,9 +23,9 @@ An example config.yml is as the following:
 
 ```yaml
 mongodb:
-    link: mongodb://localhost:27017
+    link: mongodb://mongo_rss_spider:27017
 rsshub:
-    host: http://localhost:1200/
+    host: http://rsshub_diygod:1200/
 rss:
     zhihu_hotlist:
         link: https://rsshub.app/zhihu/hotlist
@@ -57,6 +57,16 @@ I use the following command to run rsshub in docker, I reduce the cache time, so
 docker run -d --name rsshub_diygod --restart=always -p 1200:1200 \
 	-e CACHE_EXPIRE=5 -e CACHE_CONTENT_EXPIRE=60 \
 	diygod/rsshub:latest
+```
+
+## run your own mongoDB in docker (optional)
+
+```bash
+docker run -d -p 27017:27017 --name mongo_rss_spider --restart=always \
+	-v mongo_rss_spider_data_configdb:/data/configdb \
+	-v mongo_rss_spider_data_db:/data/db \
+	-v d:/docker_mount/mongo_rss_spider_backup:/mongo_backup \
+	mongo
 ```
 
 # Acknowledgement
