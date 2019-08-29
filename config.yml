@@ -12,6 +12,13 @@ rss:
             - published
             - author
             - summary
+    sina_rollnews:
+        link: https://rsshub.app/sina/rollnews
+        key_list:
+            - title
+            - link
+            - published
+            - summary
     smzdm_feed:
         link: http://feed.smzdm.com
         key_list:
