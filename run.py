@@ -11,20 +11,28 @@ def get_formatted_time():
     return local_time.strftime("%y-%m-%d %H:%M:%S")
 
 
-def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, database):
+class RSS:
+    def __init__(self, rss_name: str, rss_link: str, rss_keys_list: list, database):
+        self.wait_time = 1
+        self.rss_name = rss_name
+        self.rss_link = rss_link
+        self.rss_keys_list = rss_keys_list
+        self.database = database
 
-    rss = feedparser.parse(rss_link)
+    def fetch_and_save_rss(self):
 
-    for raw_item in rss.entries:
-        save_item = dict((key, raw_item[key]) for key in rss_keys_list)
-        save_item["_id"] = raw_item["link"]
-        save_item["last_update_time"] = get_formatted_time()
-        save_item = dict(sorted(save_item.items()))
+        rss = feedparser.parse(self.rss_link)
 
-        update_result = database[rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
-        if update_result.matched_count == 0:
-            print(get_formatted_time(), "Add new item, source :", rss_name,
-                  ", item:", save_item["title"], save_item["link"])
+        for raw_item in rss.entries:
+            save_item = dict((key, raw_item[key]) for key in self.rss_keys_list)
+            save_item["_id"] = raw_item["link"]
+            save_item["last_update_time"] = get_formatted_time()
+            save_item = dict(sorted(save_item.items()))
+
+            update_result = self.database[rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
+            if update_result.matched_count == 0:
+                print(get_formatted_time(), "Add new item, source :", rss_name,
+                      ", item:", save_item["title"], save_item["link"])
 
 
 if __name__ == "__main__":
@@ -51,16 +59,20 @@ if __name__ == "__main__":
         config["rsshub"]["host"] = args.rsshub_host
         print("Using rsshub_host from args, i.e. ", args.rsshub_host)
 
+    print(get_formatted_time(), "run")
+
+    db_client = MongoClient(config['mongodb']['link'])
+    database = db_client["rss_spider"]
+
+    rss_list = []
+    for key, value in config["rss"].items():
+        rss = RSS(key, value["link"], value["key_list"], database)
+        rss_list.append(rss)
+
     while True:
-
-        print(get_formatted_time(), "run")
-
-        db_client = MongoClient(config['mongodb']['link'])
-        database = db_client["rss_spider"]
-
-        for key, value in config["rss"].items():
-            fetch_and_save_rss(key, value["link"], value["key_list"], database)
-
-        db_client.close()
+        for rss in rss_list:
+            rss.fetch_and_save_rss()
         # break
-        time.sleep(5 * 60)
+        time.sleep(5)
+
+    db_client.close()
