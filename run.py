@@ -3,6 +3,7 @@ import datetime
 import feedparser
 import time
 import yaml
+from multiprocessing import Pool
 from pymongo import MongoClient
 
 
@@ -59,8 +60,6 @@ if __name__ == "__main__":
         config["rsshub"]["host"] = args.rsshub_host
         print("Using rsshub_host from args, i.e. ", args.rsshub_host)
 
-    print(get_formatted_time(), "run")
-
     db_client = MongoClient(config['mongodb']['link'])
     database = db_client["rss_spider"]
 
@@ -70,9 +69,18 @@ if __name__ == "__main__":
         rss_list.append(rss)
 
     while True:
+
+        print(get_formatted_time(), "start")
+
+        pool = Pool(len(rss_list))
         for rss in rss_list:
             rss.fetch_and_save_rss()
+            pool.apply_async(rss.fetch_and_save_rss())
+        pool.close()
+        pool.join()
+
         # break
+        print(get_formatted_time(), "end")
         time.sleep(5)
 
     db_client.close()
