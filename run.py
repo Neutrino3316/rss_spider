@@ -15,16 +15,15 @@ def get_formatted_time():
 
 class RSS:
     def __init__(self, rss_name: str, rss_link: str, rss_keys_list: list, database_link):
-        self.wait_time = 5
+        self.wait_time = 1
         self.rss_name = rss_name
         self.rss_link = rss_link
         self.rss_keys_list = rss_keys_list
         self.database_link = database_link
 
     def fetch_and_save_rss(self, database):
-
         rss = feedparser.parse(self.rss_link)
-
+        new_items_count = 0
         for raw_item in rss.entries:
             save_item = dict((key, raw_item[key]) for key in self.rss_keys_list)
             save_item["_id"] = raw_item["link"]
@@ -33,12 +32,17 @@ class RSS:
 
             update_result = database[self.rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
             if update_result.matched_count == 0:
+                new_items_count += 1
                 print(get_formatted_time(), "Add new item, source :", self.rss_name,
                       ", item:", save_item["title"], save_item["link"])
+        if new_items_count == 0:
+            self.wait_time *= 2
+        elif new_items_count > 5:
+            self.wait_time /= 2
 
     def run(self):
         while True:
-            print(get_formatted_time(), self.rss_name, "start")
+            print(get_formatted_time(), self.rss_name, "start, wait time is:", self.wait_time)
             db_client = MongoClient(self.database_link)
             database = db_client["rss_spider"]
             self.fetch_and_save_rss(database)
