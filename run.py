@@ -81,11 +81,18 @@ if __name__ == "__main__":
     for rss in rss_list:
         print(rss.rss_name)
         print(rss.run)
-    thread_list = []
-    for rss in rss_list:
-        thread = threading.Thread(target=rss.run)
-        thread_list.append(thread)
-    for thread in thread_list:
-        thread.start()
+
+    # thread_list = []
+    # for rss in rss_list:
+    #     thread = threading.Thread(target=rss.run)
+    #     thread_list.append(thread)
+    # for thread in thread_list:
+    #     thread.start()
+
+    pool = Pool(len(rss_list))
+    for i in range(len(rss_list)):
+        pool.apply_async(rss_list[i].run)
+    pool.close()
+    pool.join()
 
     print(get_formatted_time(), "all end")
