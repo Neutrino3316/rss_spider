@@ -1,8 +1,10 @@
 import argparse
 import datetime
 import feedparser
+import threading
 import time
 import yaml
+from multiprocessing import Pool
 from pymongo import MongoClient
 
 
@@ -11,20 +13,42 @@ def get_formatted_time():
     return local_time.strftime("%y-%m-%d %H:%M:%S")
 
 
-def fetch_and_save_rss(rss_name: str, rss_link: str, rss_keys_list: list, database):
+class RSS:
+    def __init__(self, rss_name: str, rss_link: str, rss_keys_list: list, database_link):
+        self.wait_time = 1
+        self.rss_name = rss_name
+        self.rss_link = rss_link
+        self.rss_keys_list = rss_keys_list
+        self.database_link = database_link
 
-    rss = feedparser.parse(rss_link)
+    def fetch_and_save_rss(self, database):
+        rss = feedparser.parse(self.rss_link)
+        new_items_count = 0
+        for raw_item in rss.entries:
+            save_item = dict((key, raw_item[key]) for key in self.rss_keys_list)
+            save_item["_id"] = raw_item["link"]
+            save_item["last_update_time"] = get_formatted_time()
+            save_item = dict(sorted(save_item.items()))
 
-    for raw_item in rss.entries:
-        save_item = dict((key, raw_item[key]) for key in rss_keys_list)
-        save_item["_id"] = raw_item["link"]
-        save_item["last_update_time"] = get_formatted_time()
-        save_item = dict(sorted(save_item.items()))
+            update_result = database[self.rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
+            if update_result.matched_count == 0:
+                new_items_count += 1
+                print(get_formatted_time(), "Add new item, source :", self.rss_name,
+                      ", item:", save_item["title"], save_item["link"])
+        if new_items_count == 0:
+            self.wait_time *= 2
+        elif new_items_count > 5:
+            self.wait_time /= 2
 
-        update_result = database[rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
-        if update_result.matched_count == 0:
-            print(get_formatted_time(), "Add new item, source :", rss_name,
-                  ", item:", save_item["title"], save_item["link"])
+    def run(self):
+        while True:
+            print(get_formatted_time(), self.rss_name, "start, wait time is:", self.wait_time)
+            db_client = MongoClient(self.database_link)
+            database = db_client["rss_spider"]
+            self.fetch_and_save_rss(database)
+            db_client.close()
+            print(get_formatted_time(), self.rss_name, "end")
+            time.sleep(self.wait_time)
 
 
 if __name__ == "__main__":
@@ -51,16 +75,28 @@ if __name__ == "__main__":
         config["rsshub"]["host"] = args.rsshub_host
         print("Using rsshub_host from args, i.e. ", args.rsshub_host)
 
-    while True:
+    rss_list = []
+    for key, value in config["rss"].items():
+        rss = RSS(key, value["link"], value["key_list"], config['mongodb']['link'])
+        rss_list.append(rss)
 
-        print(get_formatted_time(), "run")
+    print(get_formatted_time(), "all start")
+    print(len(rss_list))
+    for rss in rss_list:
+        print(rss.rss_name)
+        print(rss.run)
 
-        db_client = MongoClient(config['mongodb']['link'])
-        database = db_client["rss_spider"]
+    # thread_list = []
+    # for rss in rss_list:
+    #     thread = threading.Thread(target=rss.run)
+    #     thread_list.append(thread)
+    # for thread in thread_list:
+    #     thread.start()
 
-        for key, value in config["rss"].items():
-            fetch_and_save_rss(key, value["link"], value["key_list"], database)
+    pool = Pool(len(rss_list))
+    for i in range(len(rss_list)):
+        pool.apply_async(rss_list[i].run)
+    pool.close()
+    pool.join()
 
-        db_client.close()
-        # break
-        time.sleep(5 * 60)
+    print(get_formatted_time(), "all end")
