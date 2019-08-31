@@ -9,8 +9,9 @@ from pymongo import MongoClient
 
 
 def get_formatted_time():
-    local_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
-    return local_time.strftime("%y-%m-%d %H:%M:%S")
+    local_time = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
+    local_time = local_time.replace(tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
+    return local_time.strftime("%y-%m-%d %H:%M:%S %Z")
 
 
 class RSS:
