@@ -71,7 +71,7 @@ if __name__ == "__main__":
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     for rss_name in config["rss"].keys():
-        config["rss"][rss_name]["link"].replace("https://rsshub.app", config["rsshub"]["host"])
+        config["rss"][rss_name]["link"].replace("rsshub_host", config["rsshub"]["host"])
         # print(config["rss"][rss_name]["link"])
     config = dict(sorted(config.items()))
     # print(config)
