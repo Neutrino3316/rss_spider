@@ -21,32 +21,47 @@ class RSS:
         self.rss_keys_list = rss_keys_list
         self.database_link = database_link
 
-    def fetch_and_save_rss(self, database):
-        rss = feedparser.parse(self.rss_link)
-        new_items_count = 0
-        for raw_item in rss.entries:
+        self.rss = None
+        self.new_items_count = 0
+        self.save_item_list = []
+
+    def fetch(self):
+        self.rss = feedparser.parse(self.rss_link)
+
+    def parse_item(self):
+        self.save_item_list = []
+        for raw_item in self.rss.entries:
             save_item = dict((key, raw_item[key]) for key in self.rss_keys_list)
             save_item["_id"] = raw_item["link"]
             save_item["last_update_time"] = get_formatted_time()
             save_item = dict(sorted(save_item.items()))
+            self.save_item_list.append(save_item)
 
+    def save_item(self):
+        self.new_items_count = 0
+        db_client = MongoClient(self.database_link)
+        database = db_client["rss_spider"]
+        for save_item in self.save_item_list:
             update_result = database[self.rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
             if update_result.matched_count == 0:
-                new_items_count += 1
+                self.new_items_count += 1
                 print(get_formatted_time(), "Add new item, source :", self.rss_name,
                       ", item:", save_item["title"], save_item["link"])
-        if new_items_count == 0:
+        db_client.close()
+
+    def update_wait_time(self):
+        if self.new_items_count == 0:
             self.wait_time *= 2
-        elif new_items_count > 5:
+        elif self.new_items_count > 5:
             self.wait_time /= 2
 
     def run(self):
         while True:
             print(get_formatted_time(), self.rss_name, "start, wait time is:", self.wait_time)
-            db_client = MongoClient(self.database_link)
-            database = db_client["rss_spider"]
-            self.fetch_and_save_rss(database)
-            db_client.close()
+            self.fetch()
+            self.parse_item()
+            self.save_item()
+            self.update_wait_time()
             print(get_formatted_time(), self.rss_name, "end")
             time.sleep(self.wait_time)
 
@@ -84,7 +99,6 @@ if __name__ == "__main__":
     print(len(rss_list))
     for rss in rss_list:
         print(rss.rss_name)
-        print(rss.run)
 
     # thread_list = []
     # for rss in rss_list:
