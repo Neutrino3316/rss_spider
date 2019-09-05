@@ -79,9 +79,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--mongodb_host", default=None, type=str,
-                        help="the link of mongoDB, example: localhost:27017")
+                        help="the link of mongoDB, example: localhost:27017， mongo_rss_spider:27017")
     parser.add_argument("--rsshub_host", default=None, type=str,
-                        help="the host of RSSHub with http or https, example: https://rsshub.app http://localhost:1200")
+                        help="the host of RSSHub with http or https, example: \
+                        https://rsshub.app http://localhost:1200 http://rsshub_diygod:1200")
     args = parser.parse_args()
 
     if args.mongodb_host is not None:
