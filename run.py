@@ -35,6 +35,7 @@ class RSS:
             save_item = dict((key, raw_item[key]) for key in self.rss_keys_list)
             save_item["_id"] = raw_item["link"]
             save_item["last_update_time"] = get_formatted_time()
+            # save_item["published"] = time.strftime("%y-%m-%d %H:%M:%S", save_item["published"])
             save_item = dict(sorted(save_item.items()))
             self.save_item_list.append(save_item)
 
@@ -43,7 +44,8 @@ class RSS:
         db_client = MongoClient(self.database_link)
         database = db_client["rss_spider"]
         for save_item in self.save_item_list:
-            update_result = database[self.rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item}, upsert=True)
+            update_result = database[self.rss_name].update_one({'_id': save_item['_id']}, {"$set": save_item},
+                                                               upsert=True)
             if update_result.matched_count == 0:
                 self.new_items_count += 1
                 print(get_formatted_time(), "Add new item, source :", self.rss_name,
@@ -71,17 +73,13 @@ if __name__ == "__main__":
 
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-    for rss_name in config["rss"].keys():
-        config["rss"][rss_name]["link"].replace("rsshub_host", config["rsshub"]["host"])
-        # print(config["rss"][rss_name]["link"])
-    config = dict(sorted(config.items()))
     # print(config)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--mongodb_host", default=None, type=str,
-                        help="the link of mongoDB, example: localhost:27017， mongo_rss_spider:27017")
+                        help="the link of mongoDB, e.g. localhost:27017， mongo_rss_spider:27017")
     parser.add_argument("--rsshub_host", default=None, type=str,
-                        help="the host of RSSHub with http or https, example: \
+                        help="the host of RSSHub with http or https, e.g. \
                         https://rsshub.app http://localhost:1200 http://rsshub_diygod:1200")
     args = parser.parse_args()
 
@@ -92,6 +90,12 @@ if __name__ == "__main__":
         config["rsshub"]["host"] = args.rsshub_host
         print("Using rsshub_host from args, i.e. ", args.rsshub_host)
 
+    for rss_name in config["rss"].keys():
+        config["rss"][rss_name]["link"] = config["rss"][rss_name]["link"].replace(
+            "rsshub_host", config["rsshub"]["host"])
+        # print(config["rss"][rss_name]["link"])
+    config = dict(sorted(config.items()))
+
     rss_list = []
     for key, value in config["rss"].items():
         rss = RSS(key, value["link"], value["key_list"], config['mongodb']['link'])
@@ -100,7 +104,7 @@ if __name__ == "__main__":
     print(get_formatted_time(), "all start")
     print(len(rss_list))
     for rss in rss_list:
-        print(rss.rss_name)
+        print(rss.rss_name, rss.rss_link)
 
     # thread_list = []
     # for rss in rss_list:
