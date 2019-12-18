@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import dateutil.parser
 import feedparser
 import threading
 import time
@@ -8,10 +9,15 @@ from multiprocessing import Pool
 from pymongo import MongoClient
 
 
-def get_formatted_time():
+strftime_time_formatted = {
+    "with_time_zone": "%y-%m-%d %H:%M:%S %Z",
+    "without_time_zone": "%y-%m-%d %H:%M:%S %Z"}
+
+
+def get_time_now():
     local_time = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
     local_time = local_time.replace(tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
-    return local_time.strftime("%y-%m-%d %H:%M:%S %Z")
+    return local_time.strftime(strftime_time_formatted["with_time_zone"])
 
 
 class RSS:
@@ -34,10 +40,18 @@ class RSS:
         for raw_item in self.rss.entries:
             save_item = dict((key, raw_item[key]) for key in self.rss_keys_list)
             save_item["_id"] = raw_item["link"]
-            save_item["last_update_time"] = get_formatted_time()
-            # save_item["published"] = time.strftime("%y-%m-%d %H:%M:%S", save_item["published"])
+            save_item["last_update_time"] = get_time_now()
+            # save_item["published_parsed"] = RSS.parse_time(save_item.pop("published"))
+            save_item["published_parsed"] = RSS.parse_time(save_item["published"])
+            # if raw_item["published_parsed"] is not None:
+            #     # save_item["published"] = time.strftime("%y-%m-%d %H:%M:%S", raw_item["published_parsed"])
+            #     save_item["published"] = time.strftime(strftime_time_formatted["without_time_zone"], raw_item["published_parsed"])
             save_item = dict(sorted(save_item.items()))
             self.save_item_list.append(save_item)
+
+    @staticmethod
+    def parse_time(raw_time_string):
+        return dateutil.parser.parse(raw_time_string)
 
     def save_item(self):
         self.new_items_count = 0
@@ -48,7 +62,7 @@ class RSS:
                                                                upsert=True)
             if update_result.matched_count == 0:
                 self.new_items_count += 1
-                print(get_formatted_time(), "Add new item, source :", self.rss_name,
+                print(get_time_now(), "Add new item, source :", self.rss_name,
                       ", item:", save_item["title"], save_item["link"])
         db_client.close()
 
@@ -60,12 +74,12 @@ class RSS:
 
     def run(self):
         while True:
-            print(get_formatted_time(), self.rss_name, "start, wait time is:", self.wait_time)
+            print(get_time_now(), self.rss_name, "start, wait time is:", self.wait_time)
             self.fetch()
             self.parse_item()
             self.save_item()
             self.update_wait_time()
-            print(get_formatted_time(), self.rss_name, "end")
+            print(get_time_now(), self.rss_name, "end")
             time.sleep(self.wait_time)
 
 
@@ -101,7 +115,7 @@ if __name__ == "__main__":
         rss = RSS(key, value["link"], value["key_list"], config['mongodb']['link'])
         rss_list.append(rss)
 
-    print(get_formatted_time(), "all start")
+    print(get_time_now(), "all start")
     print(len(rss_list))
     for rss in rss_list:
         print(rss.rss_name, rss.rss_link)
@@ -119,4 +133,5 @@ if __name__ == "__main__":
     pool.close()
     pool.join()
 
-    print(get_formatted_time(), "all end")
+    print(get_time_now(), "all end")
+
