@@ -34,10 +34,10 @@ rss:
             - summary
 ```
 
-- 第2行中的是mongoDB数据库的地址
-- 第4行中的是RSSHub的地址，记得写明是http还是https，这个地址会自动替换调rss中的`rsshub_host`。如果有自建的RSSHub，请用自建RSSHub的容器IP地址和端口；如果没有用自建的，请改成`https://rsshub.app/`。
+- 第2行中的是mongoDB数据库的地址。如果你使用docker的容器连接，请把localhost替换成mongo容器的名称（例如mongo_rss_spider）
+- 第4行中的是RSSHub的地址，记得写明是http还是https，这个地址会自动替换调rss中的`rsshub_host`。如果有自建的RSSHub，请用自建RSSHub的容器IP地址和端口；如果没有用自建的，请改成`https://rsshub.app/`。如果你使用docker的容器连接，请把localhost替换成RSSHub容器的名称（例如rsshub_diygod）
 - 第6行中的zhihu_hotlist表示一个子项目的名称，数据库中的rss_spider下的会生成一个collection，名字就叫zhihu_hotlist
-- 第7行中的link表示一个子项目的RSS链接地址
+- 第7行中的link表示一个子项目的RSS链接地址。
 - 第9行到第13行中的键值表示要存放的键值，这个键值应该与RSS源相匹配，title和link是必须要存放的。
 
 目前只支持把数据存放到mongoDB数据库。

@@ -23,9 +23,9 @@ An example config.yml is as the following:
 
 ```yaml
 mongodb:
-    link: mongodb://mongo_rss_spider:27017
+    link: mongodb://localhost:27017
 rsshub:
-    host: http://rsshub_diygod:1200/
+    host: http://localhost:1200/
 rss:
     zhihu_hotlist:
         link: https://rsshub.app/zhihu/hotlist
@@ -37,8 +37,8 @@ rss:
             - summary
 ```
 
-- Line 2: the address of mongoDB database
-- Line 4: the address of RSSHub, please specify http or https, this address will auto replace `rsshub_host` in the links of rss. If you have your own RSSHub, please use the IP address and the port of the RSSHub container, if you don't have your own RSSHub, please use `https://rsshub.app/`
+- Line 2: the address of mongoDB database. If you use docker link container, please use the mongo container name (e.g. mongo_rss_spider) to replace localhost
+- Line 4: the address of RSSHub, please specify http or https, this address will auto replace `rsshub_host` in the links of rss. If you have your own RSSHub, please use the IP address and the port of the RSSHub container, if you don't have your own RSSHub, please use `https://rsshub.app/`. If you use docker link container, please use the RSSHub container name (e.g. rsshub_diygod) to replace localhost
 - Line 6: zhihu_hotlist is the name of a sub-project. It will generate a collection named zhihu_hotlist in rss_spider database.
 - Line 7: the link to fetch RSS
 - Line 9 to line 13: the keys to store RSS, this key should match the keys in this RSS. Title and link are necessary keys.
