@@ -38,7 +38,7 @@ rss:
 ```
 
 - Line 2: the address of mongoDB database
-- Line 4: the address of RSSHub, please specify http or https, this address will auto replace `https://rsshub.app/` in the links of rss. If you have your own RSSHub, please use the IP address and the port of the RSSHub container, if you don't have your own RSSHub, please use `https://rsshub.app/`
+- Line 4: the address of RSSHub, please specify http or https, this address will auto replace `rsshub_host` in the links of rss. If you have your own RSSHub, please use the IP address and the port of the RSSHub container, if you don't have your own RSSHub, please use `https://rsshub.app/`
 - Line 6: zhihu_hotlist is the name of a sub-project. It will generate a collection named zhihu_hotlist in rss_spider database.
 - Line 7: the link to fetch RSS
 - Line 9 to line 13: the keys to store RSS, this key should match the keys in this RSS. Title and link are necessary keys.
