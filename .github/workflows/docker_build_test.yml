@@ -9,4 +9,4 @@ jobs:
     - name: Checkout Action
     - uses: actions/checkout@master
     - name: Build the Docker image
-    - run: docker build . --file Dockerfile
+      run: docker build . --file Dockerfile
