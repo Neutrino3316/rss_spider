@@ -2,7 +2,6 @@ import argparse
 import datetime
 import dateutil.parser
 import feedparser
-import threading
 import time
 import yaml
 from multiprocessing import Pool
@@ -43,9 +42,6 @@ class RSS:
             save_item["last_update_time"] = get_time_now()
             # save_item["published_parsed"] = RSS.parse_time(save_item.pop("published"))
             save_item["published_parsed"] = RSS.parse_time(save_item["published"])
-            # if raw_item["published_parsed"] is not None:
-            #     # save_item["published"] = time.strftime("%y-%m-%d %H:%M:%S", raw_item["published_parsed"])
-            #     save_item["published"] = time.strftime(strftime_time_formatted["without_time_zone"], raw_item["published_parsed"])
             save_item = dict(sorted(save_item.items()))
             self.save_item_list.append(save_item)
 
@@ -119,13 +115,6 @@ if __name__ == "__main__":
     print(len(rss_list))
     for rss in rss_list:
         print(rss.rss_name, rss.rss_link)
-
-    # thread_list = []
-    # for rss in rss_list:
-    #     thread = threading.Thread(target=rss.run)
-    #     thread_list.append(thread)
-    # for thread in thread_list:
-    #     thread.start()
 
     pool = Pool(len(rss_list))
     for i in range(len(rss_list)):
