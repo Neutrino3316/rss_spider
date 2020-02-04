@@ -1,5 +1,7 @@
 # RSS Spider
 
+中文 | [English](https://github.com/Neutrino3316/rss_spider/blob/master/README.md)
+
 RSS Spider是一个爬虫项目，用于爬取已有的RSS并存放到自己的数据库（而不是爬取网页生成RSS）。
 
 这个项目的特点有：

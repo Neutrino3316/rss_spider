@@ -1,6 +1,6 @@
-这个是英文文档，如果要看中文文档请[点击这里](https://github.com/Neutrino3316/rss_spider/blob/master/README_ZH.md)跳转。
-
 # RSS Spider
+
+[中文](https://github.com/Neutrino3316/rss_spider/blob/master/README-zh.md) | English
 
 RSS Spider is a repo aim to fetch and save data from known RSS source.(is NOT fetch data from normal website and generate RSS source)
 
