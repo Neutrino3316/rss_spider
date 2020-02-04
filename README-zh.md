@@ -12,6 +12,14 @@ RSS Spider是一个爬虫项目，用于爬取已有的RSS并存放到自己的�
 
 RSS Spider 项目正在开发中，欢迎各位提供各种各样的建议或者提交issues和pull requests
 
+# 项目结构
+
+## 文件结构
+
+- config.yml: 设置文件
+- run.py: 运行整个项目
+
+
 # 配置
 
 强烈推荐使用docker来运行这个项目。

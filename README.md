@@ -13,6 +13,13 @@ The reasons of this repo are:
 
 This repo is still working in progress, any suggestions, issues and pull requests are warmly welcomed.
 
+# Project Structure
+
+## File Structure
+
+- config.yml: this file is used to pass the settings
+- run.py: to run the whole project
+
 # Configuration
 
 It is highly recommended to use docker to run this project.
