@@ -2,12 +2,18 @@ import argparse
 import datetime
 import dateutil.parser
 import feedparser
+import logging
 import time
 import yaml
 from multiprocessing import Pool
 from pymongo import MongoClient
 
+# set logging format and logging level
+# logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s %(levelname)s %(filename)s:%(lineno)d PID:%(process)d %(name)s \t %(message)s",
+                    level=logging.DEBUG)
 
+# set time format
 strftime_time_formatted = {
     "with_time_zone": "%y-%m-%d %H:%M:%S %Z",
     "without_time_zone": "%y-%m-%d %H:%M:%S %Z"}
@@ -37,6 +43,14 @@ class RSS:
         self.new_items_count = 0  # how many new items found in the latest fetch compared to the penultimate one.
         self.save_item_list = []  # the key of the items need to be fetched and saved
         self.waiting_time = 1  # initial waiting time between each data fetch, the time unit is second
+
+    #     self._create_logger()
+    #     self.logger.warning("This rss has created.")
+    #
+    # def _create_logger(self):
+    #     self.logger = logging.getLogger("rss:%s\t" % self.rss_name)
+    #     self.logger.setLevel(logging.DEBUG)
+    #     self.logger.info("Logger created.")
 
     def fetch(self):
         """
@@ -97,8 +111,10 @@ class RSS:
         """
         if self.new_items_count == 0:
             self.waiting_time *= 2
+            # self.logger.info("Waiting time doubled, the new waiting time is %d seconds" % self.waiting_time)
         elif self.new_items_count > 5:
             self.waiting_time /= 2
+            # self.logger.info("Waiting time cut in half, the new waiting time is %d seconds" % self.waiting_time)
 
     def run(self):
         """
@@ -106,21 +122,30 @@ class RSS:
         :return: None
         """
         while True:
-            print(get_time_now(), self.rss_name, "start, wait time is:", self.waiting_time)
+            # print(get_time_now(), self.rss_name, "start, wait time is:", self.waiting_time)
+            print("start now.")
+            # self.logger.info("Start now.")
             self.fetch()
             self.parse_item()
             self.save_item()
             self.update_waiting_time()
-            print(get_time_now(), self.rss_name, "end")
+            # print(get_time_now(), self.rss_name, "end")
+            # self.logger.info("start end, will waiting %d seconds before next run" % self.waiting_time)
             time.sleep(self.waiting_time)
 
 
 if __name__ == "__main__":
 
+    # create root logger
+    logger = logging.getLogger("main")
+    logger.setLevel(logging.DEBUG)
+
+    logger.warning("The initial of this program, everything will load and start in a minute.")
+
     # read config.yml
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-    # print(config)
+    logger.info("Config loaded: %s" % config)
 
     # parse the arguments
     parser = argparse.ArgumentParser()
@@ -134,12 +159,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # override the mongodb_host and the rsshub_host if the corresponding argument is passed.
+    logger.info("Arguments loaded: %s" % args)
     if args.mongodb_host is not None:
         config['mongodb']['link'] = args.mongodb_host
-        print("Using mongodb_host from args, i.e. ", args.mongodb_host)
+        # print("Using mongodb_host from args, i.e. ", args.mongodb_host)
+        logger.info("Using mongodb_host from args, i.e. %s" % args.mongodb_host)
     if args.rsshub_host is not None:
         config["rsshub"]["host"] = args.rsshub_host
-        print("Using rsshub_host from args, i.e. ", args.rsshub_host)
+        # print("Using rsshub_host from args, i.e. ", args.rsshub_host)
+        logger.info("Using rsshub_host from args, i.e. %s" % args.rsshub_host)
 
     # whether to save the data in test database or not
     if args.test:
@@ -160,13 +188,15 @@ if __name__ == "__main__":
         rss = RSS(key, value["link"], value["key_list"], config['mongodb']['link'], database_name)
         rss_list.append(rss)
 
-    # print time and all rss
-    print(get_time_now(), "all start")
-    print(len(rss_list))
-    for rss in rss_list:
-        print(rss.rss_name, rss.rss_link)
+    # print the number of rss loaded and all rss details
+    logger.info("%d rss are loaded. They're list as the followings:" % len(rss_list))
+    # print(len(rss_list))
+    for i, rss in enumerate(rss_list):
+        logger.info("%d/%d rss name: %s \t link: %s" % (i+1, len(rss_list), rss.rss_name, rss.rss_link))
+        # print(rss.rss_name, rss.rss_link)
 
     # use multiprocessing, for each rss, create a process that continuously fetch, parse and store data
+    logger.warning("Start all rss. Each rss has a unique thread to fetch parse and store the data.")
     pool = Pool(len(rss_list))
     for i in range(len(rss_list)):
         pool.apply_async(rss_list[i].run)
@@ -174,5 +204,5 @@ if __name__ == "__main__":
     pool.join()
 
     # should never be run
-    print(get_time_now(), "all end")
-
+    logger.error("All ended!")
+    # print(get_time_now(), "all end")
