@@ -32,6 +32,7 @@ class RSS:
         self.rss = None
         self.new_items_count = 0
         self.save_item_list = []
+        self.waiting_time = 1
 
     def fetch(self):
         self.rss = feedparser.parse(self.rss_link)
@@ -64,21 +65,21 @@ class RSS:
                       ", item:", save_item["title"], save_item["link"])
         db_client.close()
 
-    def update_wait_time(self):
+    def update_waiting_time(self):
         if self.new_items_count == 0:
-            self.wait_time *= 2
+            self.waiting_time *= 2
         elif self.new_items_count > 5:
-            self.wait_time /= 2
+            self.waiting_time /= 2
 
     def run(self):
         while True:
-            print(get_time_now(), self.rss_name, "start, wait time is:", self.wait_time)
+            print(get_time_now(), self.rss_name, "start, wait time is:", self.waiting_time)
             self.fetch()
             self.parse_item()
             self.save_item()
-            self.update_wait_time()
+            self.update_waiting_time()
             print(get_time_now(), self.rss_name, "end")
-            time.sleep(self.wait_time)
+            time.sleep(self.waiting_time)
 
 
 if __name__ == "__main__":
