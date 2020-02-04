@@ -1,0 +1,12 @@
+name: Docker Build Test
+on:
+  - push
+  - pull_request
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Action
+      uses: actions/checkout@master
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile
