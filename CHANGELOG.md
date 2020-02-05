@@ -2,6 +2,16 @@
 
 - **Initial Release**
 
+# 0.2.1 (2020-02-05)
+
+## Enhancement
+
+- **Docker auto Publish Update**: Update the Github Action, now only pushes on master and development branch will trigger auto build and publish in DockerHub.
+
+## Documentation
+
+- [#23](https://github.com/neutrino3316/rss_spider/issues/23)  **CHANGELOG**: Add changelog in both English and Chinese.
+
 # 0.2.0 (2020-02-05)
 
 ## Enhancement
