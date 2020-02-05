@@ -8,7 +8,7 @@ VOLUME ["/opt/rss_spider"]
 # update pip
 RUN pip install pip -U
 # use tsinghua pip mirror in mainland China
-RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+# RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 # install requirements
 RUN pip install -r requirements.txt
 
