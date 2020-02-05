@@ -1,5 +1,7 @@
 # RSS Spider
 
+中文 | [English](https://github.com/Neutrino3316/rss_spider/blob/master/README.md)
+
 RSS Spider是一个爬虫项目，用于爬取已有的RSS并存放到自己的数据库（而不是爬取网页生成RSS）。
 
 这个项目的特点有：
@@ -9,6 +11,14 @@ RSS Spider是一个爬虫项目，用于爬取已有的RSS并存放到自己的�
 4. 设置一个docker容器，可以不间断地爬取数据，更方便管理运行
 
 RSS Spider 项目正在开发中，欢迎各位提供各种各样的建议或者提交issues和pull requests
+
+# 项目结构
+
+## 文件结构
+
+- config.yml: 设置文件
+- run.py: 运行整个项目
+
 
 # 配置
 
