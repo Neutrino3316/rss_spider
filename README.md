@@ -2,6 +2,8 @@
 
 [中文](https://github.com/Neutrino3316/rss_spider/blob/master/README-zh.md) | English
 
+[CHANGELOG](https://github.com/Neutrino3316/rss_spider/blob/master/CHANGELOG.md)
+
 RSS Spider is a repo aim to fetch and save data from known RSS source.(is NOT fetch data from normal website and generate RSS source)
 
 The reasons of this repo are:
