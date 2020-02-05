@@ -49,11 +49,9 @@ class RSS:
     #     # self.logger.warning("This rss has created.")
     #
     # def _create_logger(self):
-    #     print("???")
     #     self.logger = logging.getLogger("rss:%s\t" % self.rss_name)
     #     self.logger.setLevel(logging.DEBUG)
     #     self.logger.info("Logger created.")
-    #     print("!!!")
 
     def fetch(self):
         """
@@ -101,8 +99,6 @@ class RSS:
                                                                upsert=True)
             if update_result.matched_count == 0:
                 self.new_items_count += 1
-                # print(get_time_now(), "Add new item, source :", self.rss_name,
-                #       ", item:", save_item["title"], save_item["link"])
                 logging.info(self.log_tag + "Add new item:\n%s\n%s" % (save_item["title"], save_item["link"]))
         db_client.close()
 
@@ -128,15 +124,12 @@ class RSS:
         :return: None
         """
         while True:
-            # print(get_time_now(), self.rss_name, "start, wait time is:", self.waiting_time)
-            # print("start now.")
             # self.logger.info("Start now.")
             logging.info(self.log_tag + "Start a new round.")
             self.fetch()
             self.parse_item()
             self.save_item()
             self.update_waiting_time()
-            # print(get_time_now(), self.rss_name, "end")
             # self.logger.info("start end, will waiting %d seconds before next run" % self.waiting_time)
             logging.info(self.log_tag + "End this round, will wait %d seconds before next round." % self.waiting_time)
             time.sleep(self.waiting_time)
@@ -170,11 +163,9 @@ if __name__ == "__main__":
     logger.info("Arguments loaded: %s" % args)
     if args.mongodb_host is not None:
         config['mongodb']['link'] = args.mongodb_host
-        # print("Using mongodb_host from args, i.e. ", args.mongodb_host)
         logger.info("Using mongodb_host from args, i.e. %s" % args.mongodb_host)
     if args.rsshub_host is not None:
         config["rsshub"]["host"] = args.rsshub_host
-        # print("Using rsshub_host from args, i.e. ", args.rsshub_host)
         logger.info("Using rsshub_host from args, i.e. %s" % args.rsshub_host)
 
     # whether to save the data in test database or not
@@ -187,7 +178,6 @@ if __name__ == "__main__":
     for rss_name in config["rss"].keys():
         config["rss"][rss_name]["link"] = config["rss"][rss_name]["link"].replace(
             "rsshub_host", config["rsshub"]["host"])
-        # print(config["rss"][rss_name]["link"])
     config = dict(sorted(config.items()))
 
     # create a rss_list that include all rss
@@ -198,10 +188,8 @@ if __name__ == "__main__":
 
     # print the number of rss loaded and all rss details
     logger.info("%d rss are loaded. They're list as the followings:" % len(rss_list))
-    # print(len(rss_list))
     for i, rss in enumerate(rss_list):
         logger.info("%d/%d rss name: %s \t link: %s" % (i+1, len(rss_list), rss.rss_name, rss.rss_link))
-        # print(rss.rss_name, rss.rss_link)
 
     # use multiprocessing, for each rss, create a process that continuously fetch, parse and store data
     logger.warning("Start all rss. Each rss has a unique thread to fetch parse and store the data.")
@@ -213,4 +201,3 @@ if __name__ == "__main__":
 
     # should never be run
     logger.error("All ended!")
-    # print(get_time_now(), "all end")
