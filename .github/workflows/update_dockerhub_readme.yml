@@ -14,7 +14,7 @@ on:
     types: # This configuration does not affect the page_build event above
       - created
 jobs:
-  update_readme:
+  update_dockerhub_readme:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Action

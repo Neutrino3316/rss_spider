@@ -3,7 +3,7 @@ on:
   - push
   - pull_request
 jobs:
-  build:
+  docker_build_test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Action
