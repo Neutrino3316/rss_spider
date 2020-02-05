@@ -39,18 +39,21 @@ class RSS:
         self.database_link = database_link
         self.database_name = database_name
 
+        self.log_tag = "rss %s\t" % self.rss_name
         self.rss = None  # the rss object returned by the feedparser
         self.new_items_count = 0  # how many new items found in the latest fetch compared to the penultimate one.
         self.save_item_list = []  # the key of the items need to be fetched and saved
         self.waiting_time = 1  # initial waiting time between each data fetch, the time unit is second
 
     #     self._create_logger()
-    #     self.logger.warning("This rss has created.")
+    #     # self.logger.warning("This rss has created.")
     #
     # def _create_logger(self):
+    #     print("???")
     #     self.logger = logging.getLogger("rss:%s\t" % self.rss_name)
     #     self.logger.setLevel(logging.DEBUG)
     #     self.logger.info("Logger created.")
+    #     print("!!!")
 
     def fetch(self):
         """
@@ -98,8 +101,9 @@ class RSS:
                                                                upsert=True)
             if update_result.matched_count == 0:
                 self.new_items_count += 1
-                print(get_time_now(), "Add new item, source :", self.rss_name,
-                      ", item:", save_item["title"], save_item["link"])
+                # print(get_time_now(), "Add new item, source :", self.rss_name,
+                #       ", item:", save_item["title"], save_item["link"])
+                logging.info(self.log_tag + "Add new item:\n%s\n%s" % (save_item["title"], save_item["link"]))
         db_client.close()
 
     def update_waiting_time(self):
@@ -112,9 +116,11 @@ class RSS:
         if self.new_items_count == 0:
             self.waiting_time *= 2
             # self.logger.info("Waiting time doubled, the new waiting time is %d seconds" % self.waiting_time)
+            logging.info(self.log_tag + "Waiting time doubled, the new waiting time is %d seconds." % self.waiting_time)
         elif self.new_items_count > 5:
             self.waiting_time /= 2
             # self.logger.info("Waiting time cut in half, the new waiting time is %d seconds" % self.waiting_time)
+            logging.info(self.log_tag + "Waiting time cut in half, the new waiting time is %d seconds." % self.waiting_time)
 
     def run(self):
         """
@@ -123,14 +129,16 @@ class RSS:
         """
         while True:
             # print(get_time_now(), self.rss_name, "start, wait time is:", self.waiting_time)
-            print("start now.")
+            # print("start now.")
             # self.logger.info("Start now.")
+            logging.info(self.log_tag + "Start a new round.")
             self.fetch()
             self.parse_item()
             self.save_item()
             self.update_waiting_time()
             # print(get_time_now(), self.rss_name, "end")
             # self.logger.info("start end, will waiting %d seconds before next run" % self.waiting_time)
+            logging.info(self.log_tag + "End this round, will wait %d seconds before next round." % self.waiting_time)
             time.sleep(self.waiting_time)
 
 
