@@ -19,22 +19,15 @@ class Worker(multiprocessing.Process):
     def _setup_logger(self):
 
         self.queue_handler = QueueHandler(self.queue)
-        self.queue_handler.setFormatter(logging.Formatter(
-            "%(asctime)s %(levelname)s %(filename)s:%(lineno)d PID:%(process)d %(name)s \t %(message)s"
-        ))
         self.logger = logging.getLogger("main.worker_%d" % self.worker_id)
-        for handler in self.logger.handlers:
-            # just a check for my sanity
-            assert not isinstance(handler, QueueHandler)
-            print("remove")
-            self.logger.removeHandler(handler)
         self.logger.addHandler(self.queue_handler)
         self.logger.info("message from worker %d" % self.worker_id)
 
     def run(self):
         time.sleep(random.uniform(0.1, 0.5))
         self._setup_logger()
-        print("show_id called, worker_%d" % self.worker_id)
+        # print("show_id called, worker_%d" % self.worker_id)
+        # print(self.logger.handlers)
         self.logger.info("message from worker %d" % self.worker_id)
         time.sleep(random.uniform(0.1, 0.5))
 
@@ -48,7 +41,7 @@ def logger_init():
     ))
 
     # queue_listener gets records from the queue and sends them to the handler
-    queue_listener = logging.handlers.QueueListener(queue, handler)
+    queue_listener = QueueListener(queue, handler)
     queue_listener.start()
 
     logger = logging.getLogger("main")
@@ -64,6 +57,8 @@ if __name__ == '__main__':
     queue_listener, queue = logger_init()
 
     logger = logging.getLogger("main.root")
+    logger.addHandler(QueueHandler(queue))
+    print(logger.handlers)
     logger.info("logging from main, starting.")
 
     worker_num = 7
@@ -78,5 +73,4 @@ if __name__ == '__main__':
         worker.join()
 
     queue_listener.stop()
-
     logger.info("logging from main, everything ended.")
