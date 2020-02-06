@@ -30,7 +30,4 @@ if __name__ == '__main__':
         worker.start()
 
     for worker in worker_list:
-        worker.run()
-
-    for worker in worker_list:
         worker.join()
