@@ -11,16 +11,17 @@ import random
 
 class Worker(multiprocessing.Process):
 
-    # def __init__(self, worker_id: int):
-    #     self.worker_id = worker_id
-
-    def set_value(self, worker_id):
+    def __init__(self, worker_id: int):
+        multiprocessing.Process.__init__(self)
         self.worker_id = worker_id
 
     def show_id(self):
-        time.sleep(random.uniform(.01, .05))
-        print("show_id called, %d" % self.worker_id)
-        time.sleep(random.uniform(.01, .05))
+        time.sleep(random.uniform(0.1, 0.5))
+        print("show_id called, worker_%d" % self.worker_id)
+        time.sleep(random.uniform(0.1, 0.5))
+
+    def run(self) -> None:
+        self.show_id()
 
 
 def logger_init():
@@ -54,15 +55,13 @@ if __name__ == '__main__':
     worker_num = 7
     worker_list = []
     for i in range(worker_num):
-        worker = Worker()
-        worker.set_value(i)
-        worker_list.append(worker)
+        worker_list.append(Worker(i))
 
     for worker in worker_list:
         worker.start()
 
     for worker in worker_list:
-        worker.show_id()
+        worker.run()
 
     for worker in worker_list:
         worker.join()
