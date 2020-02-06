@@ -14,14 +14,28 @@ class Worker(multiprocessing.Process):
     def __init__(self, worker_id: int, queue):
         multiprocessing.Process.__init__(self)
         self.worker_id = worker_id
-        self.queue_handler = QueueHandler(queue)
+        self.queue = queue
+
+    def _setup_logger(self):
+
+        self.queue_handler = QueueHandler(self.queue)
+        self.queue_handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s %(filename)s:%(lineno)d PID:%(process)d %(name)s \t %(message)s"
+        ))
         self.logger = logging.getLogger("main.worker_%d" % self.worker_id)
+        for handler in self.logger.handlers:
+            # just a check for my sanity
+            assert not isinstance(handler, QueueHandler)
+            print("remove")
+            self.logger.removeHandler(handler)
         self.logger.addHandler(self.queue_handler)
         self.logger.info("message from worker %d" % self.worker_id)
 
     def run(self):
         time.sleep(random.uniform(0.1, 0.5))
+        self._setup_logger()
         print("show_id called, worker_%d" % self.worker_id)
+        self.logger.info("message from worker %d" % self.worker_id)
         time.sleep(random.uniform(0.1, 0.5))
 
 
@@ -29,7 +43,6 @@ def logger_init():
     queue = multiprocessing.Queue()
     # this is the handler for all log records
     handler = logging.StreamHandler()
-    # handler.setFormatter(logging.Formatter("%(levelname)s: %(asctime)s - %(process)s - %(message)s"))
     handler.setFormatter(logging.Formatter(
         "%(asctime)s %(levelname)s %(filename)s:%(lineno)d PID:%(process)d %(name)s \t %(message)s"
     ))
