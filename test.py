@@ -9,20 +9,17 @@ import time
 import random
 
 
-class Worker:
+class Worker(multiprocessing.Process):
 
-    def __init__(self, worker_id: int, queue):
+    # def __init__(self, worker_id: int):
+    #     self.worker_id = worker_id
+
+    def set_value(self, worker_id):
         self.worker_id = worker_id
-        self.queue_handler = QueueHandler(queue)
-        self.logger = logging.getLogger("main.worker_%d" % self.worker_id)
-        self.logger.addHandler(self.queue_handler)
-        self.logger.info("message from worker %d" % self.worker_id)
-        print("worker %d is created" % self.worker_id)
 
     def show_id(self):
         time.sleep(random.uniform(.01, .05))
         print("show_id called, %d" % self.worker_id)
-        self.logger.info("message from show_id %d" % self.worker_id)
         time.sleep(random.uniform(.01, .05))
 
 
@@ -57,18 +54,29 @@ if __name__ == '__main__':
     worker_num = 7
     worker_list = []
     for i in range(worker_num):
-        worker_list.append(Worker(i, queue))
+        worker = Worker()
+        worker.set_value(i)
+        worker_list.append(worker)
+
+    for worker in worker_list:
+        worker.start()
+
+    for worker in worker_list:
+        worker.show_id()
+
+    for worker in worker_list:
+        worker.join()
 
     # show in one process
     # for worker in worker_list:
     #     worker.show_id()
 
     # show in multiprocess
-    pool = multiprocessing.Pool(worker_num)
-    for worker in worker_list:
-        pool.apply_async(worker.show_id)
-    pool.close()
-    pool.join()
-    queue_listener.stop()
+    # pool = multiprocessing.Pool(worker_num)
+    # for worker in worker_list:
+    #     pool.apply_async(worker.show_id)
+    # pool.close()
+    # pool.join()
+    # queue_listener.stop()
 
     logger.info("logging from main, everything ended.")
