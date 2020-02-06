@@ -13,13 +13,10 @@ class Worker(multiprocessing.Process):
         multiprocessing.Process.__init__(self)
         self.worker_id = worker_id
 
-    def show_id(self):
+    def run(self):
         time.sleep(random.uniform(0.1, 0.5))
         print("show_id called, worker_%d" % self.worker_id)
         time.sleep(random.uniform(0.1, 0.5))
-
-    def run(self) -> None:
-        self.show_id()
 
 
 if __name__ == '__main__':
