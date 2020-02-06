@@ -20,24 +20,11 @@ import sys
 import time
 import traceback
 import multiprocessing, threading, logging, sys
+from logging.handlers import QueueHandler
 
 DEFAULT_LEVEL = logging.DEBUG
 
 formatter = logging.Formatter("%(levelname)s: %(asctime)s - %(name)s - %(process)s - %(message)s")
-
-class SubProcessLogHandler(logging.Handler):
-    """handler used by subprocesses
-
-    It simply puts items on a Queue for the main process to log.
-
-    """
-
-    def __init__(self, queue):
-        logging.Handler.__init__(self)
-        self.queue = queue
-
-    def emit(self, record):
-        self.queue.put(record)
 
 class LogQueueReader(threading.Thread):
     """thread to write subprocesses log records to main process log
@@ -91,10 +78,10 @@ class LoggingProcess(multiprocessing.Process):
 
         for handler in logger.handlers:
             # just a check for my sanity
-            assert not isinstance(handler, SubProcessLogHandler)
+            assert not isinstance(handler, QueueHandler)
             logger.removeHandler(handler)
         # add the handler
-        handler = SubProcessLogHandler(self.queue)
+        handler = QueueHandler(self.queue)
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
