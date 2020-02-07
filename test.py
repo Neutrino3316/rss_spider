@@ -62,7 +62,7 @@ if __name__ == '__main__':
     logger.info("logging from main, starting.")
 
     worker = Worker(100, queue)
-    worker.start()
+    worker.run()
     worker_num = 7
     worker_list = []
     for i in range(worker_num):
