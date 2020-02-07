@@ -21,7 +21,7 @@ class Worker(multiprocessing.Process):
         self.queue_handler = QueueHandler(self.queue)
         self.logger = logging.getLogger("main.worker_%d" % self.worker_id)
         self.logger.addHandler(self.queue_handler)
-        self.logger.info("message from worker %d" % self.worker_id)
+        self.logger.info("logger setup worker %d" % self.worker_id)
 
     def run(self):
         time.sleep(random.uniform(0.1, 0.5))
@@ -61,6 +61,8 @@ if __name__ == '__main__':
     print(logger.handlers)
     logger.info("logging from main, starting.")
 
+    worker = Worker(100, queue)
+    worker.start()
     worker_num = 7
     worker_list = []
     for i in range(worker_num):
