@@ -20,7 +20,7 @@ class Worker(multiprocessing.Process):
 
         self.queue_handler = QueueHandler(self.queue)
         self.logger = logging.getLogger("main.worker_%d" % self.worker_id)
-        self.logger.addHandler(self.queue_handler)
+        # self.logger.addHandler(self.queue_handler)
         self.logger.info("logger setup worker %d" % self.worker_id)
 
     def run(self):
@@ -57,19 +57,18 @@ if __name__ == '__main__':
     queue_listener, queue = logger_init()
 
     logger = logging.getLogger("main.root")
-    logger.addHandler(QueueHandler(queue))
+    # logger.addHandler(QueueHandler(queue))
+    print(logger.parent.handlers)
     print(logger.handlers)
     logger.info("logging from main, starting.")
 
-    worker = Worker(100, queue)
-    worker.run()
     worker_num = 7
     worker_list = []
     for i in range(worker_num):
         worker_list.append(Worker(i, queue))
 
     for worker in worker_list:
-        worker.start()
+        worker.run()
 
     for worker in worker_list:
         worker.join()
