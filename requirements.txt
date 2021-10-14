@@ -1,4 +1,4 @@
 feedparser
+mysql-connector-python
 PyYAML
-pymongo
 python-dateutil
